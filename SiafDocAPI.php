@@ -573,7 +573,7 @@ class SiafDocAPI
     /**
      * @throws ReflectionException
      */
-    public static function gerarSiafDocAPartirDaFichaDeIntegracao($idDocumento)
+    public static function gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento)
     {
         $objEntradaConsultarDocumentoAPI = new EntradaConsultarDocumentoAPI();
         $objEntradaConsultarDocumentoAPI->setIdDocumento($idDocumento);
@@ -583,6 +583,8 @@ class SiafDocAPI
         $arrCampos = $objSaidaConsultarDocumentoAPI->getCampos();
 
         $objSiafDocAPI = new SiafDocAPI();
+
+        $objSiafDocAPI->setCodSemPapel(preg_replace('/\D/', '', $numeroProtocolo));
 
         foreach ($arrCampos as $campo) {
             $method = new ReflectionMethod($objSiafDocAPI, 'set' . $campo->getNome());

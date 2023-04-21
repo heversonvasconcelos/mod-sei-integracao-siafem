@@ -22,6 +22,12 @@ try {
         $strParametros .= '&id_procedimento=' . $idProcedimento;
     }
 
+    $numeroProtocolo = null;
+    if (isset($_GET['nmr_protocolo'])) {
+        $numeroProtocolo = $_GET['nmr_protocolo'];
+        $strParametros .= '&nmr_protocolo=' . $numeroProtocolo;
+    }
+
     $idDocumento = null;
     if (isset($_GET['id_documento'])) {
         $idDocumento = $_GET['id_documento'];
@@ -60,7 +66,7 @@ try {
                 $pswSenhaSiafem = $_POST['pswSenhaSiafem'];
             }
 
-            $siafDocJson = SiafDocAPI::gerarSiafDocAPartirDaFichaDeIntegracao($idDocumento);
+            $siafDocJson = SiafDocAPI::gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento);
             $strEncodedSiafDoc = rawurlencode($siafDocJson);
 
             if (isset($_POST['sbmEnviar'])) {
@@ -115,15 +121,13 @@ PaginaSEI::getInstance()->abrirBody($strTitulo, 'onload="inicializar();"');
                class="infraLabelObrigatorio">Usu&aacute;rio SIAFEM</label>
         <input type="text" id="strUsuarioSiafem" name="strUsuarioSiafemf" class="infraText"
                value="<?= PaginaSEI::tratarHTML($strUsuarioSiafem) ?>"
-               onkeypress="return infraMascaraTexto(this,event,50);" maxlength="50"
-               tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
+               maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
 
         <label id="lblSenhaSiafem" for="pswSenhaSiafem" accesskey="2"
                class="infraLabelObrigatorio">Senha SIAFEM</label>
         <input type="password" id="pswSenhaSiafem" name="pswSenhaSiafem" class="infraPassword"
                value="<?= PaginaSEI::tratarHTML($pswSenhaSiafem) ?>"
-               onkeypress="return infraMascaraTexto(this,event,50);" maxlength="50"
-               tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
+               maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
 
         <input type="hidden" id="hdnSiafDoc" name="hdnSiafDoc" value=<?= $strEncodedSiafDoc ?>/>
 

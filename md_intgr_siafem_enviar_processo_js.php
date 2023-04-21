@@ -20,10 +20,6 @@
         return decodeURIComponent(document.getElementById('hdnSiafDoc').value);
     }
 
-    function juntarSiafDoc(){
-
-    }
-
     function validarFormulario() {
         if (getStrUsuarioSiafem() === '') {
             alert('Informe o Usuário SIAFEM.');
@@ -48,9 +44,33 @@
         return true;
     }
 
+    function enviarProcessoSiafemPostAjax() {
+        let usuarioSiafem = getStrUsuarioSiafem();
+        let senhaSiafem = getPswSenhaSiafem();
+        let siafDoc = getHdnSiafDoc();
+        let anoBase = new Date().getFullYear();
+
+        $.ajax({
+            url: 'http://localhost:3080/siafem/enviar-processo',
+            type: 'POST',
+            async: false,
+            data: JSON.stringify({
+                usuario: usuarioSiafem,
+                senha: senhaSiafem,
+                anoBase: anoBase,
+                documento: siafDoc
+            }),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function () {
+            },
+            error: function (response) {
+            }
+        });
+    }
+
     function OnSubmitForm() {
-        console.log(getHdnSiafDoc());
-        console.log(formData);
-        return validarFormulario();
+        validarFormulario();
+        enviarProcessoSiafemPostAjax();
     }
 </script>

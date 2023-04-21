@@ -3,6 +3,7 @@
 class SiafemIntegracao extends SeiIntegracao
 {
     public static $FICHA_INTEGRACAO_SIAFEM = 'Ficha de Integração SIAFEM';
+    public static $URL_SERVICO_SIAFEM_BASE = 'http://localhost:3080/siafem';
 
     public function getNome()
     {
@@ -31,12 +32,19 @@ class SiafemIntegracao extends SeiIntegracao
     public function montarBotaoDocumento(ProcedimentoAPI $objProcedimentoAPI, $arrObjDocumentoAPI): array
     {
         $arrBotoes = array();
+        $numeroProtocolo = $objProcedimentoAPI->getNumeroProtocolo();
 
         foreach ($arrObjDocumentoAPI as $objDocumentoAPI) {
             if (SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM == $objDocumentoAPI->getNomeSerie()) {
                 $dblIdDocumento = $objDocumentoAPI->getIdDocumento();
                 $arrBotoes[$dblIdDocumento] = array();
-                $arrBotoes[$dblIdDocumento][] = '<a href="#" onclick="location.href=\\\'' . SessaoSEI::getInstance()->assinarLink('controlador.php?acao=md_intgr_siafem_enviar_processo&id_procedimento=' . $objProcedimentoAPI->getIdProcedimento() . '&id_documento=' . $dblIdDocumento . '&arvore=1') . '\\\';" tabindex="' . PaginaSEI::getInstance()->getProxTabBarraComandosSuperior() . '"><img  src="modulos/prodesp/integracao-siafem/svg/siafem.svg" alt="Enviar processo ao SIAFEM" title="Enviar processo ao SIAFEM" /></a>';
+                $arrBotoes[$dblIdDocumento][] = ('<a href="#" onclick="location.href=\\\'' .
+                    SessaoSEI::getInstance()->assinarLink('controlador.php?acao=md_intgr_siafem_enviar_processo' .
+                        '&id_procedimento=' . $objProcedimentoAPI->getIdProcedimento() .
+                        '&nmr_protocolo=' . $numeroProtocolo .
+                        '&id_documento=' . $dblIdDocumento . '&arvore=1') . '\\\';" tabindex="' .
+                    PaginaSEI::getInstance()->getProxTabBarraComandosSuperior() . '"><img  src="modulos/prodesp/integracao-siafem/svg/siafem.svg" alt="Enviar processo ao SIAFEM" title="Enviar processo ao SIAFEM" /></a>');
+
                 return $arrBotoes;
             }
         }
