@@ -81,7 +81,7 @@ try {
             if (isset($_POST['sbmEnviar'])) {
                 try {
                     enviarProcessoSiafemPost($siafemRequestData);
-                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
+//                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
                     //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
@@ -103,8 +103,10 @@ try {
 function enviarProcessoSiafemPost($siafemRequestData)
 {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_FAILONERROR, true);
-
+    curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FAILONERROR, false);
+    curl_setopt($ch, CURLOPT_VERBOSE, true);
     curl_setopt($ch, CURLOPT_URL,
         SiafemIntegracao::$URL_SERVICO_SIAFEM_BASE . '/enviar-processo');
     curl_setopt($ch, CURLOPT_HTTPHEADER,
@@ -112,11 +114,36 @@ function enviarProcessoSiafemPost($siafemRequestData)
 
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($siafemRequestData));
 
-    $result = curl_exec($ch);
+    $responseBody = curl_exec($ch);
 
-    if ($result === false) {
-        throw new InfraException(curl_error($ch));
+    /*
+     * if curl_exec failed then
+     * $responseBody is false
+     * curl_errno() returns non-zero number
+     * curl_error() returns non-empty string
+     * which one to use is up too you
+     */
+    $curlErrNo = curl_errno($ch);
+    $error = curl_error($ch);
+
+    $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if($curlErrNo != 0){
+        throw new InfraException($error);
     }
+
+    $responseBody = json_decode($responseBody);
+    /*
+     * 4xx status codes are client errors
+     * 5xx status codes are server errors
+     */
+    if ($responseCode >= 400) {
+        throw new InfraException(mb_convert_encoding($responseBody->erro, 'ISO-8859-1', 'UTF-8'));
+    }
+
+    return $responseBody;
+
 }
 
 function lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $codUnico)
