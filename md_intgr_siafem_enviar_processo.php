@@ -40,7 +40,7 @@ try {
 
     switch ($_GET['acao']) {
 
-        case 'md_intgr_siafem_enviar_processo':
+        case SiafemIntegracao::$ACAO_ENVIAR_PROCESSO:
 
             $strTitulo = 'Enviar ao SIAFEM';
             $arrComandos[] = '<button type="submit" accesskey="S" name="sbmEnviar" value="Enviar" class="infraButton">Enviar</button>';
@@ -81,6 +81,7 @@ try {
             if (isset($_POST['sbmEnviar'])) {
                 try {
                     enviarProcessoSiafemPost($siafemRequestData);
+                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
                     //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
@@ -116,6 +117,23 @@ function enviarProcessoSiafemPost($siafemRequestData)
     if ($result === false) {
         throw new InfraException(curl_error($ch));
     }
+}
+
+function lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $codUnico)
+{
+    $objEntradaLancarAndamentoAPI = new EntradaLancarAndamentoAPI();
+    $objEntradaLancarAndamentoAPI->setIdProcedimento($idProcedimento);
+    $objEntradaLancarAndamentoAPI->setIdTarefaModulo(SiafemIntegracao::$PROCESSO_ENVIADO_SIAFEM);
+
+    $arrObjAtributoAndamentoAPI = array();
+    $objAtributoAndamentoAPI = new AtributoAndamentoAPI();
+    $objAtributoAndamentoAPI->setNome('CodUnico');
+    $objAtributoAndamentoAPI->setValor($codUnico);
+    $arrObjAtributoAndamentoAPI[] = $objAtributoAndamentoAPI;
+
+    $objEntradaLancarAndamentoAPI->setAtributos($arrObjAtributoAndamentoAPI);
+    $objSeiRN = new SeiRN();
+    $objAndamentoAPI = $objSeiRN->lancarAndamento($objEntradaLancarAndamentoAPI);
 }
 
 PaginaSEI::getInstance()->montarDocType();

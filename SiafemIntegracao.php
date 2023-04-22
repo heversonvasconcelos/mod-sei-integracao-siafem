@@ -3,6 +3,10 @@
 class SiafemIntegracao extends SeiIntegracao
 {
     public static $FICHA_INTEGRACAO_SIAFEM = 'Ficha de Integração SIAFEM';
+
+    public static $ACAO_ENVIAR_PROCESSO = 'md_intgr_siafem_enviar_processo';
+
+    public static $PROCESSO_ENVIADO_SIAFEM = 'md_intgr_siafem_processo_enviado';
     public static $URL_SERVICO_SIAFEM_BASE = 'http://localhost:3080/siafem';
 
     public function getNome()
