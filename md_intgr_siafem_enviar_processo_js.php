@@ -31,15 +31,10 @@
             document.getElementById('pswSenhaSiafem').focus();
             return false;
         }
-        if (getPswSenhaSiafem() === '') {
-            alert('Informe a senha SIAFEM.');
-            document.getElementById('pswSenhaSiafem').focus();
-            return false;
-        }
-        if (getHdnSiafDoc() === '') {
-            alert('Não foi possível obter SIAFDOC a partir da Ficha de Integração SIAFEM.');
-            return false;
-        }
+        // if (getHdnSiafDoc() === '') {
+        //     alert('Não foi possível obter SIAFDOC a partir da Ficha de Integração SIAFEM.');
+        //     return false;
+        // }
 
         return true;
     }
@@ -76,6 +71,6 @@
 
     function OnSubmitForm() {
         validarFormulario();
-        enviarProcessoSiafemPostAjax();
+        // enviarProcessoSiafemPostAjax();
     }
 </script>

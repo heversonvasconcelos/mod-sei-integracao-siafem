@@ -43,7 +43,7 @@ class SiafemIntegracao extends SeiIntegracao
                         '&id_procedimento=' . $objProcedimentoAPI->getIdProcedimento() .
                         '&nmr_protocolo=' . $numeroProtocolo .
                         '&id_documento=' . $dblIdDocumento . '&arvore=1') . '\\\';" tabindex="' .
-                    PaginaSEI::getInstance()->getProxTabBarraComandosSuperior() . '"><img  src="modulos/prodesp/integracao-siafem/svg/siafem.svg" alt="Enviar processo ao SIAFEM" title="Enviar processo ao SIAFEM" /></a>');
+                    PaginaSEI::getInstance()->getProxTabBarraComandosSuperior() . '"><img  src="modulos/prodesp/mod-sei-integracao-siafem/svg/siafem.svg" alt="Enviar processo ao SIAFEM" title="Enviar processo ao SIAFEM" /></a>');
 
                 return $arrBotoes;
             }

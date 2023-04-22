@@ -67,10 +67,20 @@ try {
             }
 
             $siafDocJson = SiafDocAPI::gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento);
-            $strEncodedSiafDoc = rawurlencode($siafDocJson);
+            if (!isset($siafDocJson)) {
+                throw new InfraException('Não foi possível gerar SIAFDOC a partir da Ficha');
+            }
+
+            $siafemRequestData = [
+                'Usuario' => $strUsuarioSiafem,
+                'Senha' => $pswSenhaSiafem,
+                'AnoBase' => (new DateTime())->format('Y'),
+                'Documento' => array_filter((array)$siafDocJson)
+            ];
 
             if (isset($_POST['sbmEnviar'])) {
                 try {
+                    enviarProcessoSiafemPost($siafemRequestData);
                     //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
@@ -84,6 +94,28 @@ try {
 
 } catch (Exception $e) {
     PaginaSEI::getInstance()->processarExcecao($e);
+}
+
+/**
+ * @throws InfraException
+ */
+function enviarProcessoSiafemPost($siafemRequestData)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_FAILONERROR, true);
+
+    curl_setopt($ch, CURLOPT_URL,
+        SiafemIntegracao::$URL_SERVICO_SIAFEM_BASE . '/enviar-processo');
+    curl_setopt($ch, CURLOPT_HTTPHEADER,
+        ['accept: application/json', 'content-type: application/json']);
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($siafemRequestData));
+
+    $result = curl_exec($ch);
+
+    if ($result === false) {
+        throw new InfraException(curl_error($ch));
+    }
 }
 
 PaginaSEI::getInstance()->montarDocType();
@@ -119,7 +151,7 @@ PaginaSEI::getInstance()->abrirBody($strTitulo, 'onload="inicializar();"');
 
         <label id="lblUsuarioSiafem" for="strUsuarioSiafem" accesskey="1"
                class="infraLabelObrigatorio">Usu&aacute;rio SIAFEM</label>
-        <input type="text" id="strUsuarioSiafem" name="strUsuarioSiafemf" class="infraText"
+        <input type="text" id="strUsuarioSiafem" name="strUsuarioSiafem" class="infraText"
                value="<?= PaginaSEI::tratarHTML($strUsuarioSiafem) ?>"
                maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
 
@@ -128,8 +160,6 @@ PaginaSEI::getInstance()->abrirBody($strTitulo, 'onload="inicializar();"');
         <input type="password" id="pswSenhaSiafem" name="pswSenhaSiafem" class="infraPassword"
                value="<?= PaginaSEI::tratarHTML($pswSenhaSiafem) ?>"
                maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
-
-        <input type="hidden" id="hdnSiafDoc" name="hdnSiafDoc" value="<?= PaginaSEI::tratarHTML($strEncodedSiafDoc) ?>"/>
 
     </form>
 <?php

@@ -587,15 +587,14 @@ class SiafDocAPI
         $objSiafDocAPI->setCodSemPapel(preg_replace('/\D/', '', $numeroProtocolo));
 
         foreach ($arrCampos as $campo) {
-            $method = new ReflectionMethod($objSiafDocAPI, 'set' . $campo->getNome());
-            $method->invoke($objSiafDocAPI, $campo->getValor());
+            if ($campo->getNome() && $campo->getValor()) {
+                $method = new ReflectionMethod($objSiafDocAPI, 'set' . $campo->getNome());
+                $method->invoke($objSiafDocAPI, $campo->getValor());
+            }
         }
 
-        return json_encode((object)array_filter((array)$objSiafDocAPI));
-        //return json_encode($objSiafDocAPI);
+        return $objSiafDocAPI;
     }
-
-
 
 
 }
