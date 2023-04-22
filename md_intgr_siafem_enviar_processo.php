@@ -129,7 +129,7 @@ PaginaSEI::getInstance()->abrirBody($strTitulo, 'onload="inicializar();"');
                value="<?= PaginaSEI::tratarHTML($pswSenhaSiafem) ?>"
                maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
 
-        <input type="hidden" id="hdnSiafDoc" name="hdnSiafDoc" value=<?= $strEncodedSiafDoc ?>/>
+        <input type="hidden" id="hdnSiafDoc" name="hdnSiafDoc" value="<?= PaginaSEI::tratarHTML($strEncodedSiafDoc) ?>"/>
 
     </form>
 <?php

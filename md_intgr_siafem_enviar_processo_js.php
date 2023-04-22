@@ -47,24 +47,29 @@
     function enviarProcessoSiafemPostAjax() {
         let usuarioSiafem = getStrUsuarioSiafem();
         let senhaSiafem = getPswSenhaSiafem();
-        let siafDoc = getHdnSiafDoc();
+        let documento = getHdnSiafDoc();
         let anoBase = new Date().getFullYear();
+
+        let jsonData = {
+            'Usuario': usuarioSiafem,
+            'Senha': senhaSiafem,
+            'AnoBase': anoBase,
+        };
+
+        jsonData.Documento = JSON.parse(documento);
 
         $.ajax({
             url: 'http://localhost:3080/siafem/enviar-processo',
             type: 'POST',
             async: false,
-            data: JSON.stringify({
-                usuario: usuarioSiafem,
-                senha: senhaSiafem,
-                anoBase: anoBase,
-                documento: siafDoc
-            }),
+            processData: false,
             dataType: 'json',
             contentType: 'application/json',
+            data: JSON.stringify(jsonData),
             success: function () {
             },
             error: function (response) {
+                alert(response.responseJSON.erro);
             }
         });
     }
