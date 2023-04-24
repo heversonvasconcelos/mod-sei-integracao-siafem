@@ -39,7 +39,12 @@ class SiafemIntegracao extends SeiIntegracao
         $numeroProtocolo = $objProcedimentoAPI->getNumeroProtocolo();
 
         foreach ($arrObjDocumentoAPI as $objDocumentoAPI) {
-            if (SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM == $objDocumentoAPI->getNomeSerie()) {
+            $nomeSerie = $objDocumentoAPI->getNomeSerie();
+            $sinAssinado = $objDocumentoAPI->getSinAssinado();
+
+            //Verifica se o documento é uma ficha de integração SIAFEM e se está assinado
+            //if (SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM == $nomeSerie && $sinAssinado == 'S') {
+            if (SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM == $nomeSerie) {
                 $dblIdDocumento = $objDocumentoAPI->getIdDocumento();
                 $arrBotoes[$dblIdDocumento] = array();
                 $arrBotoes[$dblIdDocumento][] = ('<a href="#" onclick="location.href=\\\'' .

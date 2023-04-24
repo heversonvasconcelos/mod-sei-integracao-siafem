@@ -81,7 +81,7 @@ try {
             if (isset($_POST['sbmEnviar'])) {
                 try {
                     enviarProcessoSiafemPost($siafemRequestData);
-//                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
+                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
                     //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
@@ -129,7 +129,7 @@ function enviarProcessoSiafemPost($siafemRequestData)
     $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if($curlErrNo != 0){
+    if ($curlErrNo != 0) {
         throw new InfraException($error);
     }
 
@@ -139,7 +139,13 @@ function enviarProcessoSiafemPost($siafemRequestData)
      * 5xx status codes are server errors
      */
     if ($responseCode >= 400) {
-        throw new InfraException(mb_convert_encoding($responseBody->erro, 'ISO-8859-1', 'UTF-8'));
+        $msgErro = $responseBody->erro;
+        $msgErro = mb_convert_encoding($msgErro, 'ISO-8859-1', 'UTF-8');
+        if (is_array($msgErro)) {
+            $msgErro = implode(' ', $msgErro);
+        }
+
+        throw new InfraException($msgErro);
     }
 
     return $responseBody;
@@ -150,12 +156,12 @@ function lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $codUnico)
 {
     $objEntradaLancarAndamentoAPI = new EntradaLancarAndamentoAPI();
     $objEntradaLancarAndamentoAPI->setIdProcedimento($idProcedimento);
-    $objEntradaLancarAndamentoAPI->setIdTarefaModulo(SiafemIntegracao::$PROCESSO_ENVIADO_SIAFEM);
+    $objEntradaLancarAndamentoAPI->setIdTarefa(TarefaRN::$TI_ATUALIZACAO_ANDAMENTO);
 
     $arrObjAtributoAndamentoAPI = array();
     $objAtributoAndamentoAPI = new AtributoAndamentoAPI();
-    $objAtributoAndamentoAPI->setNome('CodUnico');
-    $objAtributoAndamentoAPI->setValor($codUnico);
+    $objAtributoAndamentoAPI->setNome('DESCRICAO');
+    $objAtributoAndamentoAPI->setValor('Processo enviado ao SIAFEM. CodUnico: ' . $codUnico);
     $arrObjAtributoAndamentoAPI[] = $objAtributoAndamentoAPI;
 
     $objEntradaLancarAndamentoAPI->setAtributos($arrObjAtributoAndamentoAPI);
