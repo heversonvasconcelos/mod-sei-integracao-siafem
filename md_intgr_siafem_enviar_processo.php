@@ -102,8 +102,9 @@ try {
  */
 function enviarProcessoSiafemPost($siafemRequestData)
 {
+    $siafemRequestData = mb_convert_encoding($siafemRequestData, 'UTF-8', 'ISO-8859-1');
+
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_ENCODING, 'UTF-8');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FAILONERROR, false);
     curl_setopt($ch, CURLOPT_VERBOSE, true);
