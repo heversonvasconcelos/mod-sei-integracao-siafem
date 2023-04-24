@@ -67,8 +67,8 @@ try {
             }
 
             $siafDocJson = SiafDocAPI::gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento);
-            if (!isset($siafDocJson)) {
-                throw new InfraException('Não foi possível gerar SIAFDOC a partir da Ficha');
+            if ($siafDocJson->getCodSemPapel() == null) {
+                throw new InfraException('Não foi possível gerar SIAFDOC a partir da ' . SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM);
             }
 
             $siafemRequestData = [

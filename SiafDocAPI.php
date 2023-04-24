@@ -573,7 +573,7 @@ class SiafDocAPI
     /**
      * @throws ReflectionException
      */
-    public static function gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento)
+    public static function gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento): SiafDocAPI
     {
         $objEntradaConsultarDocumentoAPI = new EntradaConsultarDocumentoAPI();
         $objEntradaConsultarDocumentoAPI->setIdDocumento($idDocumento);
