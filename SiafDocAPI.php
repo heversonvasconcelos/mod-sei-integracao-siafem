@@ -585,12 +585,26 @@ class SiafDocAPI
         $objSiafDocAPI = new SiafDocAPI();
 
         $objSiafDocAPI->setCodSemPapel(preg_replace('/\D/', '', $numeroProtocolo));
+        $bolMUDAPAH2 = false;
 
         foreach ($arrCampos as $campo) {
             if ($campo->getNome() && $campo->getValor()) {
+                //verificando parâmetro MUDAPAH para setar a UnidadeGestora
+                if ($campo->getNome() == 'MUDAPAH2') {
+                    if ($campo->getValor() == 'S') {
+                        $bolMUDAPAH2 = true;
+                    }
+
+                    continue;
+                }
+
                 $method = new ReflectionMethod($objSiafDocAPI, 'set' . $campo->getNome());
                 $method->invoke($objSiafDocAPI, $campo->getValor());
             }
+        }
+
+        if ($bolMUDAPAH2) {
+            $objSiafDocAPI->setUnidadeGestora('#' . $objSiafDocAPI->getUG());
         }
 
         return $objSiafDocAPI;

@@ -73,30 +73,39 @@ try {
                 $pswSenhaSiafem = $_POST['pswSenhaSiafem'];
             }
 
-            $siafDocJson = SiafDocAPI::gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento);
-            if ($siafDocJson->getCodSemPapel() == null) {
-                throw new InfraException('Não foi possível gerar SIAFDOC a partir da ' . SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM);
-            }
-
-            $siafemRequestData = [
-                'Usuario' => $strUsuarioSiafem,
-                'Senha' => $pswSenhaSiafem,
-                'AnoBase' => (new DateTime())->format('Y'),
-                'Documento' => array_filter((array) $siafDocJson)
-            ];
-
             if (isset($_POST['sbmEnviar'])) {
                 try {
+                    $objSiafDocAPI = SiafDocAPI::gerarSiafDocAPartirDaFichaDeIntegracao($numeroProtocolo, $idDocumento);
+                    if ($objSiafDocAPI->getCodSemPapel() == null) {
+                        throw new InfraException('Não foi possível gerar SIAFDOC a partir da ' . SiafemIntegracao::$FICHA_INTEGRACAO_SIAFEM);
+                    }
+
+                    $unidadeGestora = $objSiafDocAPI->getUnidadeGestora();
+                    if (isset($unidadeGestora)) {
+                        $objSiafDocAPI->setUnidadeGestora(null);
+                    } else {
+                        $unidadeGestora = '';
+                    }
+
+
+                    $siafemRequestData = [
+                        'Usuario' => $strUsuarioSiafem,
+                        'Senha' => $pswSenhaSiafem,
+                        'AnoBase' => (new DateTime())->format('Y'),
+                        'UnidadeGestora' => $unidadeGestora,
+                        'Documento' => array_filter((array) $objSiafDocAPI)
+                    ];
+
                     $result = enviarProcessoSiafemPost($siafemRequestData);
                     $codUnico = $result->codUnico;
 
                     if (!isset($codUnico)) {
                         throw new InfraException('Não foi possível enviar o SIAFDOC ao SIAFEM');
                     }
-                    $siafDocJson->setCodUnico($codUnico);
-                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
+                    $objSiafDocAPI->setCodUnico($codUnico);
+                    lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $objSiafDocAPI->getCodUnico());
+
                     PaginaSEI::getInstance()->adicionarMensagem('Operação realizada com sucesso.');
-                    //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
                 }
