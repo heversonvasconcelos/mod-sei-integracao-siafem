@@ -6,6 +6,12 @@ try {
 
     session_start();
 
+    //////////////////////////////////////////////////////////////////////////////
+    //InfraDebug::getInstance()->setBolLigado(false);
+    //InfraDebug::getInstance()->setBolDebugInfra(true);
+    //InfraDebug::getInstance()->limpar();
+    //////////////////////////////////////////////////////////////////////////////
+
     SessaoSEI::getInstance()->validarLink();
 
     //  SessaoSEI::getInstance()->validarPermissao($_GET['acao']);
@@ -89,10 +95,13 @@ try {
                     }
                     $siafDocJson->setCodUnico($codUnico);
                     lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
-                    $strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
+                    PaginaSEI::getInstance()->adicionarMensagem('Operação realizada com sucesso.');
+                    //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
                 }
+                header('Location: ' . SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1'));
+                die;
             }
             break;
 
