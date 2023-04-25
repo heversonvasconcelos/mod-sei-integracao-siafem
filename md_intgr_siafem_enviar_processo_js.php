@@ -4,6 +4,12 @@
     let formData = null;
 
     function inicializar() {
+        <? if ($strLinkRetorno != null) { ?>
+            alert('Processo enviado ao SIAFEM. CodUnico: ' + <?= $codUnico ?>);
+            parent.document.getElementById('ifrArvore').src = '<?= $strLinkRetorno ?>';
+            return;
+        <? } ?>
+
         formData = JSON.stringify($("#frmFormularioArvore").serializeArray());
         document.getElementById('strUsuarioSiafem').focus();
     }

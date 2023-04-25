@@ -8,7 +8,7 @@ try {
 
     SessaoSEI::getInstance()->validarLink();
 
-//  SessaoSEI::getInstance()->validarPermissao($_GET['acao']);
+    //  SessaoSEI::getInstance()->validarPermissao($_GET['acao']);
 
     $strParametros = '';
     if (isset($_GET['arvore'])) {
@@ -37,6 +37,7 @@ try {
     $arrComandos = array();
 
     $strLinkRetorno = null;
+    $codUnico = null;
 
     switch ($_GET['acao']) {
 
@@ -75,7 +76,7 @@ try {
                 'Usuario' => $strUsuarioSiafem,
                 'Senha' => $pswSenhaSiafem,
                 'AnoBase' => (new DateTime())->format('Y'),
-                'Documento' => array_filter((array)$siafDocJson)
+                'Documento' => array_filter((array) $siafDocJson)
             ];
 
             if (isset($_POST['sbmEnviar'])) {
@@ -83,12 +84,12 @@ try {
                     $result = enviarProcessoSiafemPost($siafemRequestData);
                     $codUnico = $result->codUnico;
 
-                    if(!isset($codUnico)){
+                    if (!isset($codUnico)) {
                         throw new InfraException('Não foi possível enviar o SIAFDOC ao SIAFEM');
                     }
                     $siafDocJson->setCodUnico($codUnico);
                     lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
-                    //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
+                    $strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
                     PaginaSEI::getInstance()->processarExcecao($e);
                 }
@@ -114,10 +115,16 @@ function enviarProcessoSiafemPost($siafemRequestData)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FAILONERROR, false);
     curl_setopt($ch, CURLOPT_VERBOSE, true);
-    curl_setopt($ch, CURLOPT_URL,
-        SiafemIntegracao::$URL_SERVICO_SIAFEM_BASE . '/enviar-processo');
-    curl_setopt($ch, CURLOPT_HTTPHEADER,
-        ['accept: application/json', 'content-type: application/json']);
+    curl_setopt(
+        $ch,
+        CURLOPT_URL,
+        SiafemIntegracao::$URL_SERVICO_SIAFEM_BASE . '/enviar-processo'
+    );
+    curl_setopt(
+        $ch,
+        CURLOPT_HTTPHEADER,
+        ['accept: application/json', 'content-type: application/json']
+    );
 
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($siafemRequestData));
 
@@ -185,11 +192,11 @@ PaginaSEI::getInstance()->montarStyle();
 PaginaSEI::getInstance()->abrirStyle();
 ?>
 
-    #lblUsuarioSiafem {position:absolute;left:0%;top:0%;width:50%;}
-    #strUsuarioSiafem {position:absolute;left:0%;top:6%;width:50%;}
+#lblUsuarioSiafem {position:absolute;left:0%;top:0%;width:50%;}
+#strUsuarioSiafem {position:absolute;left:0%;top:6%;width:50%;}
 
-    #lblSenhaSiafem {position:absolute;left:0%;top:16%;width:50%;}
-    #pswSenhaSiafem {position:absolute;left:0%;top:22%;width:50%;}
+#lblSenhaSiafem {position:absolute;left:0%;top:16%;width:50%;}
+#pswSenhaSiafem {position:absolute;left:0%;top:22%;width:50%;}
 
 <?php
 PaginaSEI::getInstance()->fecharStyle();
@@ -199,27 +206,26 @@ PaginaSEI::getInstance()->fecharJavaScript();
 PaginaSEI::getInstance()->fecharHead();
 PaginaSEI::getInstance()->abrirBody($strTitulo, 'onload="inicializar();"');
 ?>
-    <form id="frmFormularioArvore" method="post" onsubmit="return OnSubmitForm();"
-          action="<?= PaginaSEI::getInstance()->formatarXHTML(SessaoSEI::getInstance()->assinarLink('controlador.php?acao=' . $_GET['acao'] . '&acao_origem=' . $_GET['acao'] . $strParametros)) ?>">
-        <?php
-        PaginaSEI::getInstance()->montarBarraComandosSuperior($arrComandos);
-        //PaginaSEI::getInstance()->montarAreaValidacao();
-        PaginaSEI::getInstance()->abrirAreaDados('30em');
-        ?>
+<form id="frmFormularioArvore" method="post" onsubmit="return OnSubmitForm();"
+    action="<?= PaginaSEI::getInstance()->formatarXHTML(SessaoSEI::getInstance()->assinarLink('controlador.php?acao=' . $_GET['acao'] . '&acao_origem=' . $_GET['acao'] . $strParametros)) ?>">
+    <?php
+    PaginaSEI::getInstance()->montarBarraComandosSuperior($arrComandos);
+    //PaginaSEI::getInstance()->montarAreaValidacao();
+    PaginaSEI::getInstance()->abrirAreaDados('30em');
+    ?>
 
-        <label id="lblUsuarioSiafem" for="strUsuarioSiafem" accesskey="1"
-               class="infraLabelObrigatorio">Usu&aacute;rio SIAFEM</label>
-        <input type="text" id="strUsuarioSiafem" name="strUsuarioSiafem" class="infraText"
-               value="<?= PaginaSEI::tratarHTML($strUsuarioSiafem) ?>"
-               maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
+    <label id="lblUsuarioSiafem" for="strUsuarioSiafem" accesskey="1" class="infraLabelObrigatorio">Usu&aacute;rio
+        SIAFEM</label>
+    <input type="text" id="strUsuarioSiafem" name="strUsuarioSiafem" class="infraText"
+        value="<?= PaginaSEI::tratarHTML($strUsuarioSiafem) ?>" maxlength="50"
+        tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>" />
 
-        <label id="lblSenhaSiafem" for="pswSenhaSiafem" accesskey="2"
-               class="infraLabelObrigatorio">Senha SIAFEM</label>
-        <input type="password" id="pswSenhaSiafem" name="pswSenhaSiafem" class="infraPassword"
-               value="<?= PaginaSEI::tratarHTML($pswSenhaSiafem) ?>"
-               maxlength="50" tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>"/>
+    <label id="lblSenhaSiafem" for="pswSenhaSiafem" accesskey="2" class="infraLabelObrigatorio">Senha SIAFEM</label>
+    <input type="password" id="pswSenhaSiafem" name="pswSenhaSiafem" class="infraPassword"
+        value="<?= PaginaSEI::tratarHTML($pswSenhaSiafem) ?>" maxlength="50"
+        tabindex="<?= PaginaSEI::getInstance()->getProxTabDados() ?>" />
 
-    </form>
+</form>
 <?php
 require_once('md_intgr_siafem_enviar_processo_js.php');
 PaginaSEI::getInstance()->fecharBody();
