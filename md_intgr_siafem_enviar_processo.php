@@ -80,7 +80,13 @@ try {
 
             if (isset($_POST['sbmEnviar'])) {
                 try {
-                    enviarProcessoSiafemPost($siafemRequestData);
+                    $result = enviarProcessoSiafemPost($siafemRequestData);
+                    $codUnico = $result->codUnico;
+
+                    if(!isset($codUnico)){
+                        throw new InfraException('Não foi possível enviar o SIAFDOC ao SIAFEM');
+                    }
+                    $siafDocJson->setCodUnico($codUnico);
                     lancarAndamentoProcessoEnviadoAoSiafem($idProcedimento, $siafDocJson->getCodUnico());
                     //$strLinkRetorno = SessaoSEI::getInstance()->assinarLink('controlador.php?acao=procedimento_visualizar&acao_origem=' . $_GET['acao'] . '&id_procedimento=' . $_GET['id_procedimento'] . '&id_documento=' . $_GET['id_documento'] . '&montar_visualizacao=1');
                 } catch (Exception $e) {
