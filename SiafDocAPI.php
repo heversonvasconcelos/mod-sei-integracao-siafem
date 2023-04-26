@@ -598,6 +598,17 @@ class SiafDocAPI
                     continue;
                 }
 
+                //verificando parâmetros FlagPresencial FlagEletronico
+                if ($campo->getNome() == 'PresencialEletronico') {
+                    if ($campo->getValor() == 'flagPresencial') {
+                        $objSiafDocAPI->setFlagPresencial('X');
+                    } elseif ($campo->getValor() == 'flagEletronico') {
+                        $objSiafDocAPI->setFlagEletronico('X');
+                    }
+
+                    continue;
+                }
+
                 $method = new ReflectionMethod($objSiafDocAPI, 'set' . $campo->getNome());
                 $method->invoke($objSiafDocAPI, $campo->getValor());
             }
